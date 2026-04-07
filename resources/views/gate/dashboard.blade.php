@@ -468,10 +468,40 @@
         if (res.ok) location.reload();
     }
 
-    // ─── Start polling ────────────────────────────────────────
-    setInterval(fetchReport, 5000);
+    // ─── Real-Time WebSockets (Reverb) ────────────────────────
+    const pusherScript = document.createElement('script');
+    pusherScript.src = 'https://cdn.jsdelivr.net/npm/pusher-js@8.3.0/dist/web/pusher.min.js';
+    pusherScript.onload = () => {
+        const pusher = new Pusher('{{ env("REVERB_APP_KEY") }}', {
+            wsHost: '{{ env("REVERB_HOST") }}',
+            wsPort: {{ env("REVERB_PORT") }},
+            forceTLS: false,
+            enabledTransports: ['ws', 'wss'],
+            cluster: 'mt1'
+        });
+
+        const channel = pusher.subscribe('detections');
+        channel.bind('object.detected', function(data) {
+            console.log('Real-time Event:', data);
+            
+            // Instantly sync UI
+            if (typeof fetchReport === 'function') fetchReport();
+            if (typeof showDetectionOverlay === 'function') showDetectionOverlay(data);
+            
+            // Trigger Global Alarm if person found
+            if (data.person_count > 0 && typeof showAlert === 'function') {
+                showAlert('URGENT: Individual detected at ' + data.camera_name);
+            }
+        });
+    };
+    document.head.appendChild(pusherScript);
+
+    // Initial load
     fetchReport();
-    setInterval(fetchLatestDetection, 3000);
     fetchLatestDetection();
+    
+    // Safety fallback polling (much slower)
+    setInterval(fetchReport, 30000); 
+    setInterval(fetchLatestDetection, 15000);
 </script>
 @endpush
