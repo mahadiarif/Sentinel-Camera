@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#050a0e"/>
+  <text x="50%" y="42%" text-anchor="middle" fill="#00e5ff" font-family="monospace" font-size="22" font-weight="bold">SIGNAL LOST</text>
+  <text x="50%" y="52%" text-anchor="middle" fill="#445566" font-family="monospace" font-size="13">RECONNECTING...</text>
+</svg>
